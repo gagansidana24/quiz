@@ -1,13 +1,13 @@
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
 const authMiddleware = async (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
+  const token = req.header("Authorization").replace("Bearer ", "");
   if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
+    return res.status(401).json({ message: "No token, authorization denied" });
   }
 
   try {
@@ -15,8 +15,15 @@ const authMiddleware = async (req, res, next) => {
     req.user = await User.findById(decoded.userId);
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+    res.status(401).json({ message: "Token is not valid" });
   }
 };
 
-module.exports = authMiddleware;
+const adminMiddleware = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin resources access denied" });
+  }
+  next();
+};
+
+module.exports = { authMiddleware, adminMiddleware };

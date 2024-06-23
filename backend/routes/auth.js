@@ -71,18 +71,15 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      console.error("Login Error: User not found");
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.error("Login Error: Password does not match");
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     if (!user.emailVerified) {
-      console.error("Login Error: Email not verified");
       return res.status(400).json({ message: "Email not verified" });
     }
 
@@ -91,7 +88,10 @@ router.post("/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.json({ token, user: { name: user.name, email: user.email } });
+    res.json({
+      token,
+      user: { name: user.name, email: user.email, role: user.role },
+    });
   } catch (err) {
     console.error("Login Error:", err);
     res.status(500).json({ message: "Server error" });

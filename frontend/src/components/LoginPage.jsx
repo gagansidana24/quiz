@@ -10,16 +10,22 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/login`,
-        { email, password }
-      );
+      const response = await axios.post("http://localhost:3000/api/login", {
+        email,
+        password,
+      });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       setErrorMessage("");
-      navigate("/welcome");
+      navigate("/home");
     } catch (err) {
-      setErrorMessage(err.response.data.message || "Login failed");
+      console.error(
+        "Login Error:",
+        err.response ? err.response.data : err.message
+      );
+      setErrorMessage(
+        err.response ? err.response.data.message : "Login failed"
+      );
     }
   };
 
