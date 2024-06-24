@@ -1,42 +1,61 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import UserProfile from "./UserProfile";
-import QuizHistory from "./QuizHistory";
 
 const UserHomePage = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [categories, setCategories] = useState(["all"]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [user, setUser] = useState(null);
+  const [quizHistory, setQuizHistory] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchQuizzes = async () => {
+    const fetchUserData = async () => {
       try {
-        const response = await axios.get(
+        const token = localStorage.getItem("token");
+
+        // Fetch user profile
+        const userResponse = await axios.get(
+          "http://localhost:3000/api/user/profile",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setUser(userResponse.data);
+
+        // Fetch quiz history
+        const historyResponse = await axios.get(
+          "http://localhost:3000/api/quiz/quiz-history",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setQuizHistory(historyResponse.data);
+
+        // Fetch quizzes
+        const quizzesResponse = await axios.get(
           "http://localhost:3000/api/quiz/quizzes",
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
             params: { category: selectedCategory },
           }
         );
-        setQuizzes(response.data);
+        setQuizzes(quizzesResponse.data);
 
+        // Extract unique categories
         if (categories.length === 1) {
-          // Only 'all' is present initially
           const uniqueCategories = Array.from(
-            new Set(response.data.map((quiz) => quiz.category))
+            new Set(quizzesResponse.data.map((quiz) => quiz.category))
           );
           setCategories(["all", ...uniqueCategories]);
         }
       } catch (err) {
-        console.error("Fetch Quizzes Error:", err);
+        console.error("Fetch User Data Error:", err);
       }
     };
 
-    fetchQuizzes();
+    fetchUserData();
   }, [selectedCategory]);
 
   const handleLogout = () => {
@@ -53,8 +72,28 @@ const UserHomePage = () => {
     <div>
       <h1>Welcome to Your Dashboard</h1>
       <button onClick={handleLogout}>Logout</button>
-      <UserProfile />
-      <QuizHistory />
+      {user && (
+        <div>
+          <h2>User Profile</h2>
+          <p>
+            <strong>Name:</strong> {user.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {user.email}
+          </p>
+        </div>
+      )}
+      <h2>Quiz History</h2>
+      <ul>
+        {quizHistory.map((history) => (
+          <li key={history._id}>
+            <Link to={`/quiz-history/${history._id}`}>
+              {history.quiz.title}
+            </Link>{" "}
+            - Score: {history.score}/{history.totalQuestions}
+          </li>
+        ))}
+      </ul>
       <h2>Available Quizzes</h2>
       <label htmlFor="categoryFilter">Filter by Category:</label>
       <select

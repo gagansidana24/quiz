@@ -8,7 +8,10 @@ import ResultPage from "./components/ResultPage";
 import WelcomePage from "./components/WelcomePage";
 import SubmitData from "./components/SubmitData";
 import UserHomePage from "./components/UserHomePage";
-import ViewQuiz from "./components/ViewQuiz";
+import QuizDetails from "./components/QuizDetails";
+import SubmitQuiz from "./components/SubmitQuiz";
+import ReviewQuiz from "./components/ReviewQuiz";
+import ResultsQuiz from "./components/ResultsQuiz";
 
 function App() {
   return (
@@ -22,7 +25,10 @@ function App() {
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/submit-data" element={<SubmitData />} />
         <Route path="/home" element={<UserHomePage />} />
-        <Route path="/quiz/:id" element={<ViewQuiz />} />
+        <Route path="/quiz/:id" element={<QuizDetails />} />
+        <Route path="/quiz/:id/start" element={<SubmitQuiz />} />
+        <Route path="/quiz/:id/review" element={<ReviewQuiz />} />
+        <Route path="/quiz/:id/results" element={<ResultsQuiz />} />
       </Routes>
     </Router>
   );
