@@ -3,11 +3,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { TimerContext } from "../context/TimerContext";
 
-const ReviewQuiz = () => {
+const ReviewQuiz = ({ answers, quiz }) => {
   const { id } = useParams();
-  const { state } = useLocation();
-  const { answers, quiz } = state;
-  const { timeLeft, setTimeLeft } = useContext(TimerContext);
+  const { timeLeft, resetTime } = useContext(TimerContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,7 +15,7 @@ const ReviewQuiz = () => {
   }, [timeLeft]);
 
   const handleSubmitQuiz = async () => {
-    setTimeLeft(0); // Stop the timer
+    resetTime(); // Stop the timer
     try {
       await axios.post(
         `http://localhost:3000/api/quiz/quizzes/${id}/submit`,

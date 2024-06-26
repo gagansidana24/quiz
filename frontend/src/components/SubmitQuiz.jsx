@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { TimerContext } from "../context/TimerContext";
 
-const SubmitQuiz = ({ setAnswers: updateAnswers, quiz }) => {
+const SubmitQuiz = ({ setAnswers: updateAnswers, answers, quiz }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const { timeLeft, setTimeLeft } = useContext(TimerContext);
+  const { timeLeft, resetTime } = useContext(TimerContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +28,6 @@ const SubmitQuiz = ({ setAnswers: updateAnswers, quiz }) => {
 
   const handleAnswerChange = (questionId, answer) => {
     const updatedAnswers = { ...answers, [questionId]: answer };
-    setAnswers(updatedAnswers);
     updateAnswers(updatedAnswers);
   };
 
@@ -38,7 +36,7 @@ const SubmitQuiz = ({ setAnswers: updateAnswers, quiz }) => {
   };
 
   const handleSubmitQuiz = async () => {
-    setTimeLeft(0); // Stop the timer
+    resetTime(); // Stop the timer
     try {
       await axios.post(
         `http://localhost:3000/api/quiz/quizzes/${quiz._id}/submit`,
@@ -159,7 +157,6 @@ const SubmitQuiz = ({ setAnswers: updateAnswers, quiz }) => {
         Next
       </button>
       <button onClick={handleReviewQuiz}>Review Quiz</button>
-      <button onClick={handleSubmitQuiz}>Submit Quiz</button>
     </div>
   );
 };

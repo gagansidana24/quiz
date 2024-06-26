@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useCallback, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -22,7 +22,7 @@ import ResultsQuizHistory from "./components/ResultsQuizHistory";
 import { TimerProvider } from "./context/TimerContext";
 import axios from "axios";
 
-const TimerWrapper = ({ Component }) => {
+const TimerWrapper = ({ Component, page }) => {
   const { id } = useParams();
   const [duration, setDuration] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -69,7 +69,12 @@ const TimerWrapper = ({ Component }) => {
 
   return (
     <TimerProvider duration={duration} onTimeOut={handleTimeOut}>
-      <Component setAnswers={setAnswers} quiz={quiz} />
+      <Component
+        setAnswers={setAnswers}
+        answers={answers}
+        quiz={quiz}
+        page={page}
+      />
     </TimerProvider>
   );
 };
@@ -87,18 +92,14 @@ function App() {
         <Route path="/submit-data" element={<SubmitData />} />
         <Route path="/home" element={<UserHomePage />} />
         <Route path="/quiz/:id" element={<QuizDetails />} />
-        {/* <Route path="/quiz/:id/start" element={<SubmitQuiz />} />
-        <Route path="/quiz/:id/review" element={<ReviewQuiz />} /> */}
-
         <Route
           path="/quiz/:id/start"
-          element={<TimerWrapper Component={SubmitQuiz} />}
+          element={<TimerWrapper Component={SubmitQuiz} page="start" />}
         />
         <Route
           path="/quiz/:id/review"
-          element={<TimerWrapper Component={ReviewQuiz} />}
+          element={<TimerWrapper Component={ReviewQuiz} page="review" />}
         />
-
         <Route path="/quiz/:id/results" element={<ResultsQuiz />} />
         <Route path="/quiz-history/:id" element={<ResultsQuizHistory />} />
       </Routes>

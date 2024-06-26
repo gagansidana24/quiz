@@ -23,8 +23,12 @@ export const TimerProvider = ({ children, duration, onTimeOut }) => {
     }
   }, [timeLeft, onTimeOut]);
 
+  const resetTime = () => {
+    setTimeLeft(duration * 60);
+  };
+
   return (
-    <TimerContext.Provider value={{ timeLeft, setTimeLeft }}>
+    <TimerContext.Provider value={{ timeLeft, resetTime }}>
       {children}
     </TimerContext.Provider>
   );
