@@ -12,6 +12,7 @@ router.get("/profile", authMiddleware, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    res.setHeader("Cache-Control", "no-store");
     res.status(200).json(user);
   } catch (err) {
     console.error("Get Profile Error:", err);
@@ -25,6 +26,7 @@ router.get("/quiz-history", authMiddleware, async (req, res) => {
     const quizzes = await Quiz.find({ user: req.user.id }).populate(
       "questions"
     );
+    res.setHeader("Cache-Control", "no-store");
     res.status(200).json(quizzes);
   } catch (err) {
     console.error("Get Quiz History Error:", err);

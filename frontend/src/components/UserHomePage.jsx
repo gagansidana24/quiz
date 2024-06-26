@@ -56,7 +56,7 @@ const UserHomePage = () => {
     };
 
     fetchUserData();
-  }, [selectedCategory]);
+  }, [selectedCategory, categories.length]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -85,14 +85,18 @@ const UserHomePage = () => {
       )}
       <h2>Quiz History</h2>
       <ul>
-        {quizHistory.map((history) => (
-          <li key={history._id}>
-            <Link to={`/quiz-history/${history._id}`}>
-              {history.quiz.title}
-            </Link>{" "}
-            - Score: {history.score}/{history.totalQuestions}
-          </li>
-        ))}
+        {quizHistory.length > 0 ? (
+          quizHistory.map((history) => (
+            <li key={history._id}>
+              <Link to={`/quiz-history/${history._id}`}>
+                {history.quiz.title}
+              </Link>{" "}
+              - Score: {history.score}/{history.totalQuestions}
+            </li>
+          ))
+        ) : (
+          <p>No quiz history available.</p>
+        )}
       </ul>
       <h2>Available Quizzes</h2>
       <label htmlFor="categoryFilter">Filter by Category:</label>
@@ -108,11 +112,16 @@ const UserHomePage = () => {
         ))}
       </select>
       <ul>
-        {quizzes.map((quiz) => (
-          <li key={quiz._id}>
-            <Link to={`/quiz/${quiz._id}`}>{quiz.title}</Link> ({quiz.category})
-          </li>
-        ))}
+        {quizzes.length > 0 ? (
+          quizzes.map((quiz) => (
+            <li key={quiz._id}>
+              <Link to={`/quiz/${quiz._id}`}>{quiz.title}</Link> (
+              {quiz.category})
+            </li>
+          ))
+        ) : (
+          <p>No quizzes available.</p>
+        )}
       </ul>
     </div>
   );

@@ -5,7 +5,7 @@ const QuizSchema = new mongoose.Schema({
   category: { type: String, required: true },
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   duration: { type: Number, required: true }, // Duration in minutes
-  rules: { type: String, required: true }, // Quiz rules
+  rules: { type: String, required: false }, // Quiz rules
 });
 
 module.exports = mongoose.model("Quiz", QuizSchema);

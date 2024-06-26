@@ -1,37 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { TimerContext } from "../context/TimerContext";
 
-const SubmitQuiz = () => {
-  const { id } = useParams();
-  const { state } = useLocation();
-  const [quiz, setQuiz] = useState(state ? state.quiz : null);
-  const [timeLeft, setTimeLeft] = useState(0);
+const SubmitQuiz = ({ setAnswers: updateAnswers, quiz }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState(state ? state.answers : {});
+  const [answers, setAnswers] = useState({});
+  const { timeLeft, setTimeLeft } = useContext(TimerContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!quiz) {
-      const fetchQuiz = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:3000/api/quiz/quizzes/${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-          setQuiz(response.data);
-          setTimeLeft(response.data.duration * 60); // convert minutes to seconds
-        } catch (err) {
-          console.error("Fetch Quiz Error:", err);
-        }
-      };
-      fetchQuiz();
+    if (timeLeft === 0) {
+      handleSubmitQuiz();
     }
-  }, [id, quiz]);
+  }, [timeLeft]);
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < quiz.questions.length - 1) {
@@ -46,11 +28,29 @@ const SubmitQuiz = () => {
   };
 
   const handleAnswerChange = (questionId, answer) => {
-    setAnswers({ ...answers, [questionId]: answer });
+    const updatedAnswers = { ...answers, [questionId]: answer };
+    setAnswers(updatedAnswers);
+    updateAnswers(updatedAnswers);
   };
 
   const handleReviewQuiz = () => {
-    navigate(`/quiz/${id}/review`, { state: { answers, quiz } });
+    navigate(`/quiz/${quiz._id}/review`, { state: { answers, quiz } });
+  };
+
+  const handleSubmitQuiz = async () => {
+    setTimeLeft(0); // Stop the timer
+    try {
+      await axios.post(
+        `http://localhost:3000/api/quiz/quizzes/${quiz._id}/submit`,
+        { answers },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      navigate(`/quiz/${quiz._id}/results`, { state: { answers, quiz } });
+    } catch (err) {
+      console.error("Submit Quiz Answers Error:", err);
+    }
   };
 
   if (!quiz) return <div>Loading...</div>;
@@ -159,6 +159,7 @@ const SubmitQuiz = () => {
         Next
       </button>
       <button onClick={handleReviewQuiz}>Review Quiz</button>
+      <button onClick={handleSubmitQuiz}>Submit Quiz</button>
     </div>
   );
 };
